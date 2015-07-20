@@ -1,3 +1,7 @@
+/** 
+* Title : Android application to detect fall and communicate with server.
+* @Author: Aditya Ghadigaonkar
+**/
 package edu.npu.fallarm;
 
 import java.io.DataInputStream;
@@ -7,7 +11,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Locale;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -42,41 +45,31 @@ public class MainActivity extends Activity implements SensorEventListener {
 	// id
 	private TextView textLatitude;
 	private TextView textLongitude;
-
 	private TextView textAccelX; // accelerometer x coord textview
 	private TextView textAccelY; // y
 	private TextView textAccelZ; // z
-
 	private TextView textGyroX; // gyroscope x coord textview
-	private TextView textGyroY;
-	private TextView textGyroZ;
-
+	private TextView textGyroY; // y
+	private TextView textGyroZ; // z
 	private TextView textRiskRating;
-
 	private float oldx = 0;
 	private float oldy = 0;
 	private float oldz = 0;
 	private boolean acceChangeFlag = false;
 	private boolean geoFlag = false;
-
 	private int riskRate = 0;
-
 	private String android_id = "";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		//for sdk API level 9 or higher, use this thread policy
+		//for sdk API level 9 or higher
 		if (android.os.Build.VERSION.SDK_INT > 9) {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 			StrictMode.setThreadPolicy(policy);
 		}
-
-		// load each textview by id from layout resource main.xml
 		android_id = Secure.getString(this.getContentResolver(), Secure.ANDROID_ID);
-		
 		textPatientId = (TextView) findViewById(R.id.patientId);
 		textPatientId.setText("Patient Id: " + android_id);
 		textLatitude = (TextView) findViewById(R.id.latitude);
@@ -96,40 +89,28 @@ public class MainActivity extends Activity implements SensorEventListener {
 		textGyroY.setText("Y: 0");
 		textGyroZ.setText("Z: 0");
 		textRiskRating = (TextView) findViewById(R.id.risk_rating);
-
 		String provider = LocationManager.GPS_PROVIDER;
 		String context = Context.LOCATION_SERVICE;
-
 		LocationManager locationManager;
 		locationManager = (LocationManager) getSystemService(context);
 		Location location = locationManager.getLastKnownLocation(provider);
-
 		// hold its lat, lng data
 		updateWithNewLocation(location); // display location
-
 		// register location listener to listen changes, update every 1 sec and
 		// 1 meter change
 		locationManager.requestLocationUpdates(provider, 1000, 1, new MyLocationListener());
-
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); // sensor
 		// manager
-
 		accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION); // Sensor.TYPE_GYROSCOPE
-		// magneticfield =
-		// sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-
 		// register these sensors with sensor manager
 		sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI); // .SENSOR_DELAY_NORMAL);
 		sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_UI);
-
-
 	}
 
 	@Override
 	// SensorEventListener's method
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
 	}
 
 	@Override
@@ -142,27 +123,24 @@ public class MainActivity extends Activity implements SensorEventListener {
 			float x = event.values[0];
 			float y = event.values[1];
 			float z = event.values[2];
-
 			if (oldx != x || oldy != y || oldz != z) {
 				oldx = x;
 				oldy = y;
 				oldz = z;
 				acceChangeFlag = true;
-			} else {
+			} 
+			else {
 				acceChangeFlag = false;
 			}
-
 			textAccelX.setText("X: " + x);
 			textAccelY.setText("Y: " + y);
 			textAccelZ.setText("Z: " + z);
-
 			// rate the risk using accelerometer on its sensor data changed
 			// get this calculated data from server instead
 			risk = riskRating(x, y, z);
 			//risk = 1;
 			System.out.println("X: " + x + "  Y: " + y + "  Z: " + z + " risk=" + risk);
 		}
-
 		// check sensor type for orientation (gyroscope)
 		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) { // Sensor.TYPE_GYROSCOPE
 			float x = event.values[0];
@@ -173,30 +151,22 @@ public class MainActivity extends Activity implements SensorEventListener {
 			textGyroY.setText("Y: " + y);
 			textGyroZ.setText("Z: " + z);
 		}
-
-
-		
 		// now we can send high risk sensor data to pc server
 		if (risk > 3 && acceChangeFlag && geoFlag) {
 			Log.i("filter", "sending sensor data over network");
 			sendSensorDataOverNetwork();
 		}
 	}
-
 	// use socket to send sensor accelerometer and gyroscope data to the PC
 	// server
 	public void sendSensorDataOverNetwork() {
 		Socket socket = null;
 		DataOutputStream dataOutputStream = null; // for sending data over to server
 		DataInputStream dataInputStream = null; // for receiving data from server
-		
-
 		try {
 			socket = new Socket("172.19.9.230", 8081);
-
 			dataOutputStream = new DataOutputStream(socket.getOutputStream());
 			dataInputStream = new DataInputStream(socket.getInputStream());
-
 			// build string, use this data text to carry over to server
 			String acceleroData = "Accelerometer " + textAccelX.getText().toString() + " "
 					+ textAccelY.getText().toString() + " " + textAccelZ.getText().toString();
@@ -209,7 +179,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 			dataOutputStream.writeUTF(gyroData);
 			dataOutputStream.writeUTF(locationData); // also send geo data
 			Log.i("filter", "Sensor Data is sent over the network!");
-
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -238,17 +207,14 @@ public class MainActivity extends Activity implements SensorEventListener {
 			}
 		}
 	}
-
 	// helper method for FallArm project, do risk rating based on accelerometer
 	// data
 	// 1 being highest risk, 5 is lowest risk
 	public int riskRating(float x, float y, float z) {
 		// gforce = sqrt of vector sum
 		float gforce = Math.round(Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2)));
-
 		Log.i("filter", "G-Force: " + gforce);
 		int riskRate;
-
 		if (gforce >= 9) // && vectorSum <= 10 )
 			riskRate = 1;
 		else if (gforce >= 7 && gforce <= 8)
@@ -260,7 +226,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 		else
 			// gforce 0
 			riskRate = 5; // lowest risk
-
 		textRiskRating.setText("Risk Rate: " + riskRate);
 		return riskRate;
 	}
@@ -287,7 +252,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 		@Override
 		public void onLocationChanged(Location location) {
 			updateWithNewLocation(location);
-
 		}
 
 		@Override
@@ -308,7 +272,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 	private void updateWithNewLocation(Location location) {
 		String latLongString;
 		String addressString = "No address found";
-
 		if (location != null) {
 			double latitude = location.getLatitude();
 			double longitude = location.getLongitude();
@@ -322,7 +285,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 				StringBuilder sb = new StringBuilder();
 				if (addresses.size() > 0) {
 					Address address = addresses.get(0);
-
 					for (int i = 0; i < address.getMaxAddressLineIndex(); i++) {
 						sb.append(address.getAddressLine(i)).append("\n");
 					}
