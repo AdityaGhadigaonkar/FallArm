@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/patientId"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Patient Id: " />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Location" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/latitude"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Latitude: " />
+
+        <TextView
+            android:id="@+id/longitude"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Longitude: " />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accelerometer" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/accel_x"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X: " />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/accel_y"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Y: " />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/accel_z"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Z: " />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gyroscope (Orientation)" />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/gyro_x"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X: " />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/gyro_y"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Y: " />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/gyro_z"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Z: " />
+    </TableRow>
+
+    <TableRow>
+
+        <TextView
+            android:id="@+id/risk_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Risk Rate: " />
+    </TableRow>
+
+</TableLayout>
